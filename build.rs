@@ -595,6 +595,11 @@ fn configure_cc(c: &mut cc::Build, target: &Target, c_root_dir: &Path, include_d
     if target.os == "scarlet" && !compiler.is_like_msvc() {
         let _ = c.flag("-fno-stack-protector");
         let _ = c.flag("-Wno-unused-command-line-argument");
+
+        if target.arch == "riscv64" {
+            let _ = c.flag("-march=rv64gc");
+            let _ = c.flag("-mabi=lp64d");
+        }
     }
 
     // Allow cross-compiling without a target sysroot for these targets.
