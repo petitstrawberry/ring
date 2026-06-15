@@ -253,6 +253,7 @@ const LINUX_ABI: &[&str] = &[
     "openbsd",
     "linux",
     "redox",
+    "scarlet",
     "solaris",
 ];
 
@@ -589,6 +590,10 @@ fn configure_cc(c: &mut cc::Build, target: &Target, c_root_dir: &Path, include_d
         if !is_msvc_not_clang_cl {
             let _ = c.flag("-msse2");
         }
+    }
+
+    if target.os == "scarlet" && !compiler.is_like_msvc() {
+        let _ = c.flag("-fno-stack-protector");
     }
 
     // Allow cross-compiling without a target sysroot for these targets.
