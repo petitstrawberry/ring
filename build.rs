@@ -338,16 +338,16 @@ fn ring_build_rs_main(c_root_dir: &Path, core_name_and_version: &str) {
         None
     };
 
-    // If `.git` exists then assume this is the "local hacking" case where
-    // we want to make it easy to build *ring* using `cargo build`/`cargo test`
-    // without a prerequisite `package` step, at the cost of needing additional
-    // tools like `Perl` and/or `nasm`.
-    //
-    // If `.git` doesn't exist then assume that this is a packaged build where
-    // we want to optimize for minimizing the build tools required: No Perl,
-    // no nasm, etc.
-    let generated_dir = if !is_git {
-        c_root_dir.join(PREGENERATED)
+    // Published crates contain pregenerated sources, but `cargo vendor` of a
+    // Git dependency copies its repository without running `cargo package`.
+    // Generate the sources in that case, just as we do for a Git checkout.
+    let pregenerated_dir = c_root_dir.join(PREGENERATED);
+    let generated_dir = if !is_git
+        && pregenerated_dir
+            .join("ring_core_generated/prefix_symbols.h")
+            .is_file()
+    {
+        pregenerated_dir
     } else {
         generate_sources_and_preassemble(
             &out_dir,
